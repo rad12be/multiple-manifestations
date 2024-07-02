@@ -92,7 +92,35 @@
 
     </div>
 
+<script>
+        // Prevent screen from sleeping while videos are playing
+        function keepScreenOn() {
+            const videoFrames = document.querySelectorAll('.video-container iframe');
+            videoFrames.forEach(frame => {
+                frame.addEventListener('load', () => {
+                    frame.contentDocument.addEventListener('play', () => {
+                        // Keep screen on when video starts playing
+                        if ('wakeLock' in navigator) {
+                            navigator.wakeLock.request('screen').catch(err => {
+                                console.error('Could not request screen wake lock:', err);
+                            });
+                        }
+                    });
+                    frame.contentDocument.addEventListener('pause', () => {
+                        // Release screen wake lock when video pauses
+                        if ('wakeLock' in navigator) {
+                            navigator.wakeLock.release().catch(err => {
+                                console.error('Could not release screen wake lock:', err);
+                            });
+                        }
+                    });
+                });
+            });
+        }
 
+        // Call the function to keep screen on
+        keepScreenOn();
+    </script>
 
 </body>
 </html>
